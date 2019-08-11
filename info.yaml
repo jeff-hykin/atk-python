@@ -1,0 +1,4 @@
+(using_atk_version): 1.0
+(installer):
+    (install_command): ruby install.rb
+    (dependencies): {}
