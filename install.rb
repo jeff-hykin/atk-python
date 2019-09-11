@@ -4,11 +4,19 @@ version_they_want_me_to_install = Console.args[0]
 
 # pick an operating system
 if OS.is?('mac')
-
-    puts "Now I can do my install stuff for mac here"
-    -"which python3" || puts("you don't have python! :O ")
-
+    if version_they_want_me_to_install == nil
+        system 'brew install python'
+    else
+        version = Version.new(version_they_want_me_to_install)
+        system "brew install python@#{version.major}"
+    end
 elsif OS.is?('linux')
+    if version_they_want_me_to_install == nil
+        system 'brew install python'
+    else
+        version = Version.new(version_they_want_me_to_install)
+        system "brew install python@#{version.major}"
+    end
 
     answer = Console.yes?("do you like linux")
     if answer
