@@ -1,6 +1,13 @@
 (using_atk_version): 1.0
 (installer):
     (install_command): ruby install.rb
-    (commands):
-        (run): ruby install.rb
     (dependencies): {}
+    (commands):
+        (install): ruby install.rb
+        (version): ruby python_version.rb
+    (contributes):
+        (sub-package-manager):
+            pip:
+                (install): ruby pip.rb
+                (version): ruby pip_version.rb
+                (uninstall): pip uninstall 
