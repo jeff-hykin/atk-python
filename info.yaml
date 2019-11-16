@@ -12,3 +12,43 @@
                 (install): ruby pip.rb
                 (version): ruby pip_version.rb
                 (uninstall): pip uninstall 
+
+(project):
+    name: A Project
+    description: A new project
+    
+    commands: &commands # if you dont know what the & means, see https://blog.daemonl.com/2016/02/yaml.html
+        (setup): echo 'Everything all setup'
+    
+    paths: &paths
+        root: ./
+    
+    dependencies: &dependencies
+        atk: 0.0.1
+    
+    (advanced_setup):
+        (put_new_dependencies_under): [ '(project)', 'basic_info', 'dependencies' ]
+        # caveats for a specific OS
+        when(--os is 'mac'):
+            (project_commands):
+                <<: *commands
+            (dependencies):
+                <<: *dependencies
+            (paths):
+                <<: *paths
+                
+        when(--os is 'windows'):
+            (project_commands):
+                <<: *commands
+            (dependencies):
+                <<: *dependencies
+            (paths):
+                <<: *paths
+                
+        when(--os is 'linux'):
+            (project_commands):
+                <<: *commands
+            (dependencies):
+                <<: *dependencies
+            (paths):
+                <<: *paths
