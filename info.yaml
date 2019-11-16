@@ -3,6 +3,7 @@
     (install_command): ruby install.rb
     (dependencies): {}
     (commands):
+        (run): ruby install.rb
         (install): ruby install.rb
         (version): ruby python_version.rb
     (contributes):
