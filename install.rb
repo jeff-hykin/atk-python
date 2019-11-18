@@ -6,8 +6,12 @@ version_they_want_me_to_install = Console.args[0]
 if OS.is?('mac')
 
     # make sure both exist
-    -"brew install python2"
-    -"brew install python3"
+    if not Console.has_command("python2")
+        -"brew install python2"
+    end
+    if not Console.has_command("python3")
+        -"brew install python3"
+    end
 
 elsif OS.is?('linux')
     # if on ubuntu
@@ -17,7 +21,7 @@ elsif OS.is?('linux')
         system("yes \"\" | sudo apt install python2.7 python-pip")
         system("yes \"\" | sudo apt install python3 python3-pip")
     else
-        raise "Sorry, I don't support your version of linux yet :/"
+        raise "Sorry, the automatic install of python isn't supported on your flavor of linux yet :/"
     end
 
 elsif OS.is?('windows')
@@ -30,13 +34,24 @@ end
 # 
 # set the command
 # 
-options = ["uh... I'm not sure", "I need it to link to python2!", "I need it to link to python3!"]
-if options[1] == Console.select("\n\nWhat would you like the python command to link to?", options)
-    puts "Okay I'll link it to python2"
+if Console.args[1] == "2"
+    puts "Setting #{"python".green} command to be #{"python2".green}"
     set_command("python", "exec 'python2', *ARGV")
     set_command("pip", "exec 'pip2', *ARGV")
-else
-    puts "Okay I'll link it to python3"
+elsif Console.args[1] == "3"
+    puts "Setting #{"python".green} command to be #{"python3".green}"
     set_command("python", "exec 'python3', *ARGV")
     set_command("pip", "exec 'pip3', *ARGV")
+else
+    # if no version specified, then ask the user
+    options = ["uh... I'm not sure", "I need it to link to python2!", "I need it to link to python3!"]
+    if options[1] == Console.select("\n\nWhat would you like the python command to link to?", options)
+        puts "Okay I'll link it to python2"
+        set_command("python", "exec 'python2', *ARGV")
+        set_command("pip", "exec 'pip2', *ARGV")
+    else
+        puts "Okay I'll link it to python3"
+        set_command("python", "exec 'python3', *ARGV")
+        set_command("pip", "exec 'pip3', *ARGV")
+    end
 end
