@@ -9,6 +9,8 @@ if OS.is?('mac')
     if not Console.has_command("python2")
         -"brew install python2"
     end
+    # overwrite all system links for python2 encase anything was broken from previous installs
+    -"brew link --overwrite python@2"
     if not Console.has_command("python3")
         -"brew install python3"
     end
