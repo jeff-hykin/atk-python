@@ -10,6 +10,8 @@ if OS.is?('mac')
         -"brew install python2"
     end
     # overwrite all system links for python2 encase anything was broken from previous installs
+    -"brew unlink python@2"
+    -"brew link python@2"
     -"brew link --overwrite python@2"
     if not Console.has_command("python3")
         -"brew install python3"
@@ -36,7 +38,7 @@ end
 # 
 # set the command
 # 
-puts Console.args
+puts "puts Console.args is: #{puts Console.args} "
 if Console.args[1] == "2"
     puts "Setting #{"python".green} command to be #{"python2".green}"
     set_command("python", "exec 'python2', *ARGV")
