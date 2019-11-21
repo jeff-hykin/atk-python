@@ -38,7 +38,6 @@ end
 # 
 # set the command
 # 
-puts "puts Console.args is: #{puts Console.args} "
 if Console.args[1] == "2"
     puts "Setting #{"python".green} command to be #{"python2".green}"
     set_command("python", "exec 'python2', *ARGV")
