@@ -1,5 +1,7 @@
 require 'atk_toolbox'
 
+puts "Console.args is: #{Console.args} "
+
 # pick an operating system
 if OS.is?('mac')
 
