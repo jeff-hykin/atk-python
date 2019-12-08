@@ -15,7 +15,7 @@
         root: ./
     
     dependencies: &dependencies
-        atk: 0.0.1
+        atk: 0.0.107
     
     (advanced_setup):
         (put_new_dependencies_under): [ '(project)', 'basic_info', 'dependencies' ]
