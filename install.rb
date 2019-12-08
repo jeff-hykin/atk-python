@@ -1,7 +1,5 @@
 require 'atk_toolbox'
 
-puts "Console.args is: #{Console.args} "
-
 # pick an operating system
 if OS.is?('mac')
 
@@ -38,10 +36,10 @@ end
 # 
 # set the command
 # 
-if Console.args[1] == "2"
+if Console.args[0] == "2"
     puts "Setting #{"python".green} command to be #{"python2".green}"
     Console.set_command("python", "exec 'python2', *ARGV")
-elsif Console.args[1] == "3"
+elsif Console.args[0] == "3"
     puts "Setting #{"python".green} command to be #{"python3".green}"
     Console.set_command("python", "exec 'python3', *ARGV")
 else
