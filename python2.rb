@@ -30,7 +30,7 @@ def link_python_2
         # if homebrew python3 is installed, ensure those links are maintained
         if `brew list`.split("\n").include?("python")
             python3_version = Version.extract_from(`brew info python@3`)
-            python3_executable = "/usr/local/Cellar/python@3/#{python3_version}/bin/python3"
+            python3_executable = "/usr/local/Cellar/python/#{python3_version}/bin/python3"
             # directly link python3 to their most homebrew-up-to-date executables
             system "sudo", "ln", "-sf", python3_executable, "/usr/local/bin/python3"
             # directly link pip3

@@ -26,7 +26,7 @@ def link_python_3
         -"brew unlink python@3 2>/dev/null"
         -"brew link --overwrite python@3 2>/dev/null"
         python3_version = Version.extract_from(`brew info python@3`)
-        python3_executable = "/usr/local/Cellar/python@3/#{python3_version}/bin/python3"
+        python3_executable = "/usr/local/Cellar/python/#{python3_version}/bin/python3"
         
         # directly link python2, python, python3 to their most homebrew-up-to-date executables
         system "sudo", "ln", "-sf", python2_executable, "/usr/local/bin/python2"
