@@ -17,20 +17,37 @@ end
 
 def link_python_3
     if OS.is?('mac')
+        # make sure python2 via homebrew exists
+        system "brew install python@2 2>/dev/null"
+        python2_version = Version.extract_from(`brew info python@2`)
+        python2_executable = "/usr/local/Cellar/python@2/#{python2_version}/bin/python"
+        
         # overwrite all system links for python3 encase anything was broken from previous installs
         -"brew unlink python@3 2>/dev/null"
-        -"brew link python@3 2>/dev/null"
         -"brew link --overwrite python@3 2>/dev/null"
+        python3_version = Version.extract_from(`brew info python@3`)
+        python3_executable = "/usr/local/Cellar/python@3/#{python3_version}/bin/python3"
+        
+        # directly link python2, python, python3 to their most homebrew-up-to-date executables
+        system "sudo", "ln", "-sf", python2_executable, "/usr/local/bin/python2"
+        system "sudo", "ln", "-sf", python3_executable, "/usr/local/bin/python"
+        system "sudo", "ln", "-sf", python3_executable, "/usr/local/bin/python3"
+        
+        # directly link pip2, pip, and pip3 to their correct pythons
+        FS.write("#!/bin/bash\npython3 -m pip $@", to: "/usr/local/bin/pip3")
+        FS.write("#!/bin/bash\npython -m pip $@", to: "/usr/local/bin/pip")
+        FS.write("#!/bin/bash\npython2 -m pip $@", to: "/usr/local/bin/pip2")
     elsif OS.is?('windows')
         # just pick it
         system("scoop reset python")
     elsif OS.is?('linux')
         # TODO: make this more efficient by have it being bash 
-        # make python3 the default
         Console.set_command("python", "exec 'python3', *ARGV")
-        # link the pips
-        Console.set_command("pip", "exec 'python', '-m', 'pip', *ARGV")
-        Console.set_command("pip3", "exec 'python3', '-m', 'pip', *ARGV")
+        # fix all the pips
+        FS.write("#!/bin/bash\npython3 -m pip $@", to: "/usr/local/bin/pip3")
+        FS.write("#!/bin/bash\npython -m pip $@", to: "/usr/local/bin/pip")
+        FS.write("#!/bin/bash\npython2 -m pip $@", to: "/usr/local/bin/pip2")
+        
     end
 end
 

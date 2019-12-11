@@ -18,8 +18,22 @@ def link_python_2
     if OS.is?('mac')
         # overwrite all system links for python2 encase anything was broken from previous installs
         -"brew unlink python@2 2>/dev/null"
-        -"brew link python@2 2>/dev/null"
         -"brew link --overwrite python@2 2>/dev/null"
+        python2_version = Version.extract_from(`brew info python@2`)
+        python2_executable = "/usr/local/Cellar/python@2/#{python2_version}/bin/python"
+        system "sudo", "ln", "-sf", python2_executable, "/usr/local/bin/python2"
+        system "sudo", "ln", "-sf", python2_executable, "/usr/local/bin/python"
+        # directly link pip2, pip to their correct pythons
+        FS.write("#!/bin/bash\npython -m pip $@", to: "/usr/local/bin/pip")
+        FS.write("#!/bin/bash\npython2 -m pip $@", to: "/usr/local/bin/pip2")
+        
+        # if homebrew python3 is installed, ensure those links are maintained
+        if `brew list`.split("\n").include?("python")
+            # directly link python3 to their most homebrew-up-to-date executables
+            system "sudo", "ln", "-sf", python3_executable, "/usr/local/bin/python3"
+            # directly link pip3
+            FS.write("#!/bin/bash\npython3 -m pip $@", to: "/usr/local/bin/pip3")
+        end
     elsif OS.is?('windows')
         # just pick it
         system("scoop reset python27")
