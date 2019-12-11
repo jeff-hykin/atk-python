@@ -36,3 +36,6 @@ elsif primary_version == 2
     ensure_python_3()
     ensure_python_2()
 end
+puts "=========================="
+puts "finished instaling python"
+puts "=========================="
