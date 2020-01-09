@@ -1,6 +1,6 @@
 def install_python_3
     if OS.is?('mac')
-        -"brew install python@3 2>/dev/null"
+        -"brew install python@3 2>/dev/null" || -"brew update python@3 2>/dev/null"
     elsif OS.is?('windows')
         system("scoop install python")
     elsif OS.is?('linux')
