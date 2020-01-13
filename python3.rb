@@ -128,4 +128,9 @@ if OS.is?(:unix)
     HEREDOC
     
     # TODO: check to make sure python2/python3, pip3, pip2 etc get installed
+    
+    puts "================================================================"
+    puts "                    your path was just changed"
+    puts "  (so refresh your console to get access to the new commands)"
+    puts "================================================================"
 end
