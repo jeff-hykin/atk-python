@@ -6,14 +6,11 @@
         (install): ruby install.rb
 
 (project):
-    name: Your Project Name Here
-    description: Describe your project here
+    name: Python installer
+    description: The python installer for ATK
     
     (commands):
-        run: echo 'no run command written yet'
-        run_ruby_example: !language/ruby |
-            puts 'replace this with your own ruby code'
-        (setup): echo 'setup command unset' 
+        (setup): echo 'no setup needed' 
     
     (paths):
         project_root: ./
