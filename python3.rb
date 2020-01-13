@@ -1,60 +1,131 @@
-def install_python_3
-    if OS.is?('mac')
-        -"brew install python@3 2>/dev/null" || -"brew update python@3 2>/dev/null"
-    elsif OS.is?('windows')
-        system("scoop install python")
-    elsif OS.is?('linux')
-        # if on ubuntu
-        if OS.is?("ubuntu")
-            system("sudo apt update")
-            system("sudo apt upgrade python3")
-            system("yes \"\" | sudo apt install python3 python3-pip")
+require 'atk_toolbox'
+
+version = Console.args[0]
+
+def select_version(version, from: "")
+    version_list = from
+    if version_list.is_a?(String)
+        versions = version_list.split("\n").map(&:strip)
+    elsif version_list.is_a?(Array)
+        versions = version_list.map(&:strip)
+    end
+    # exact match
+    if versions.include?(version)
+        return version
+    end
+    
+    pure_versions = versions.select do |each|
+        each =~ /\A\d+\.\d+\.\d+\z/
+    end.map{|each| Version.new(each)}.sort!.reverse!
+    
+    # if none selected, then pick the latest stable
+    if version == nil
+        return pure_versions[0]
+    else
+        version = Version.new(version)
+        
+        if version > pure_versions[0]
+            raise <<-HEREDOC.remove_indent
+                
+                
+                Version higher than avalible version
+                    requested version: #{version}
+                    highest avalible: #{pure_versions[0]}
+            HEREDOC
+        end
+        
+        for each in pure_versions
+            if version >= each
+                return each
+            end
+        end
+        
+        # TODO: error lowest version not found
+        return nil
+    end
+end
+
+if OS.is?(:windows)
+    require_relative './python3.rb'
+    require_relative './python2.rb'
+
+    # 
+    # decide which version
+    # 
+    primary_version = 3
+    if Console.args[0] == "2"
+        puts "Setting #{"python".green} command to be #{"python2".green}"
+        primary_version = 2
+    elsif Console.args[0] == "3"
+        puts "Setting #{"python".green} command to be #{"python3".green}"
+        primary_version = 3
+    else
+        # if no version specified, then ask the user
+        options = ["uh... I'm not sure", "I need it to link to python2!", "I need it to link to python3!"]
+        if options[1] == Console.select("\n\nWhat would you like the python command to link to?", options)
+            puts "Okay I'll link it to python2"
+            primary_version = 2
         else
-            raise "Sorry, the automatic install of python isn't supported on your flavor of linux yet :/"
+            puts "Okay I'll link it to python3"
+            primary_version = 3
         end
     end
-end
 
-def link_python_3
-    if OS.is?('mac')
-        # make sure python2 via homebrew exists
-        system "brew install python@2 2>/dev/null"
-        python2_version = Version.extract_from(`brew info python@2`)
-        python2_executable = "/usr/local/Cellar/python@2/#{python2_version}/bin/python"
-        
-        # overwrite all system links for python3 encase anything was broken from previous installs
-        -"brew unlink python@3 2>/dev/null"
-        -"brew link --overwrite python@3 2>/dev/null"
-        python3_version = Version.extract_from(`brew info python@3`)
-        python3_executable = "/usr/local/Cellar/python/#{python3_version}/bin/python3"
-        
-        # directly link python2, python, python3 to their most homebrew-up-to-date executables
-        system "sudo", "ln", "-sf", python2_executable, "/usr/local/bin/python2"
-        system "sudo", "ln", "-sf", python3_executable, "/usr/local/bin/python"
-        system "sudo", "ln", "-sf", python3_executable, "/usr/local/bin/python3"
-        
-        # directly link pip2, pip, and pip3 to their correct pythons
-        FS.write("#!/bin/bash\npython3 -m pip $@", to: "/usr/local/bin/pip3")
-        FS.write("#!/bin/bash\npython -m pip $@", to: "/usr/local/bin/pip")
-        FS.write("#!/bin/bash\npython2 -m pip $@", to: "/usr/local/bin/pip2")
-    elsif OS.is?('windows')
-        # just pick it
-        system("scoop reset python")
-    elsif OS.is?('linux')
-        # TODO: make this more efficient by have it being bash 
-        Console.set_command("python", "exec 'python3', *ARGV")
-        # fix all the pips
-        FS.write("#!/bin/bash\npython3 -m pip $@", to: "/usr/local/bin/pip3")
-        FS.write("#!/bin/bash\npython -m pip $@", to: "/usr/local/bin/pip")
-        FS.write("#!/bin/bash\npython2 -m pip $@", to: "/usr/local/bin/pip2")
-        
+
+    # 
+    # do the install/setup accordingly
+    # 
+    if primary_version == 3
+        ensure_python_2()
+        ensure_python_3()
+    elsif primary_version == 2
+        ensure_python_3()
+        ensure_python_2()
     end
 end
 
-def ensure_python_3()
-    # check if python3 exists
-    if not Console.has_command("python3")
-        install_python_3()
-    end
-    link_python_3()
+
+if OS.is?(:unix)
+    # 
+    # install a python version manager
+    # 
+    Atk.run("jeff-hykin/atk-asdf")
+    
+    asdf_path = HOME/".asdf"
+    asdf_path = `brew --prefix asdf`.chomp if OS.is?(:mac)
+    asdf_command = "source #{Console.as_shell_argument(asdf_path/"asdf.sh")}"
+    
+    # 
+    # add python plugin
+    # 
+    system <<-HEREDOC
+        # run the asdf setup
+        #{asdf_command}
+        # then add python
+        asdf plugin add python
+        asdf plugin update python
+    HEREDOC
+    
+    # 
+    # figure out which version
+    # 
+    versions = `#{asdf_command};asdf list all python`.split("\n").map(&:strip)
+    selected_version = select_version(version, from: versions)
+    
+    # execute the setup so the command is avalible
+    system <<-HEREDOC
+        # run the asdf setup
+        #{asdf_command}
+        # then add python
+        asdf plugin add python
+        asdf plugin update python
+        # then install the version
+        asdf install python #{selected_version}
+        # then set the local version
+        asdf local python #{selected_version}
+        # then set the version
+        asdf global python #{selected_version}
+    HEREDOC
+    
+    # TODO: check to make sure python2/python3, pip3, pip2 etc get installed
 end

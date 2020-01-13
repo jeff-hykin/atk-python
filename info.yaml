@@ -1,45 +1,19 @@
-(using_atk_version): 1.0
-(installer):
-    (dependencies): {}
-    (commands):
+(using_atk_version): 1.1.0
+
+(package):
+    (actions):
         (run): ruby install.rb
+        (install): ruby install.rb
 
 (project):
-    name: A Project
-    description: A new project
+    name: Your Project Name Here
+    description: Describe your project here
     
-    commands: &commands # if you dont know what the & means, see https://blog.daemonl.com/2016/02/yaml.html
-        (setup): echo 'Everything all setup'
+    (commands):
+        run: echo 'no run command written yet'
+        run_ruby_example: !language/ruby |
+            puts 'replace this with your own ruby code'
+        (setup): echo 'setup command unset' 
     
-    paths: &paths
-        root: ./
-    
-    dependencies: &dependencies
-        atk: 0.0.107
-    
-    (advanced_setup):
-        (put_new_dependencies_under): [ '(project)', 'basic_info', 'dependencies' ]
-        # caveats for a specific OS
-        when(--os is 'mac'):
-            (project_commands):
-                <<: *commands
-            (dependencies):
-                <<: *dependencies
-            (paths):
-                <<: *paths
-                
-        when(--os is 'windows'):
-            (project_commands):
-                <<: *commands
-            (dependencies):
-                <<: *dependencies
-            (paths):
-                <<: *paths
-                
-        when(--os is 'linux'):
-            (project_commands):
-                <<: *commands
-            (dependencies):
-                <<: *dependencies
-            (paths):
-                <<: *paths
+    (paths):
+        project_root: ./
